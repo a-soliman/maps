@@ -29,7 +29,7 @@ const styles = [
             { visibility: 'off'}
         ]
     }
-]
+];
 
 function initMap() {
     
@@ -38,11 +38,11 @@ function initMap() {
         zoom: 12,
         center: {lat: 40.7713124, lng: -73.9632393},
         styles: styles
-    }
+    };
 
     // MAP'S CONTAINER
     const mapContainer = document.getElementById('map');
-    const map = new google.maps.Map(mapContainer, options)
+    const map = new google.maps.Map(mapContainer, options);
 
     /* ========== CREATE A MARKER FUNCTION ========== */
     function createMarker(props) {
@@ -85,13 +85,51 @@ function initMap() {
         // CHECK IF THE INFOWINDOW IS NOT ALREADY OPENED ON THIS MARKER
         if ( infoWindow.marker != marker ) {
             infoWindow.marker = marker;
-            infoWindow.setContent(`<div><h3>${marker.title}</h3> ${marker.position}</div>`);
-            infoWindow.open(map, marker);
+            infoWindow.setContent('');
 
             // MAKE SURE THE MARKER PROPERTY IS CLEARED IF THE INFOWINDOW IS CLOSED
             infoWindow.addListener('closeclick', function() {
                 infoWindow.marker = null;
-            })
+            });
+
+            // get street view
+            let streetViewService = new google.maps.StreetViewService();
+            let radius = 50;
+
+            /* INCASE THE STATUS WAS OK, MEANING THE PANO WAS FOUND,
+            COMPUTE THE POSITION OF THE STREETVIEW IMAGE, THEN CALCULATE THE HEADING
+            THEN GET A PANORAMA FROM THAT AND SET THE OPTIONS */
+            function getStreetView(data, status) {
+                if ( status == google.maps.StreetViewStatus.OK ) {
+                    let nearStreetViewLocation = data.location.latLng;
+                    let heading = google.maps.geometry.spherical.computeHeading(
+                        nearStreetViewLocation, marker.position
+                    );
+                    infoWindow.setContent(`<div>${marker.title}</div><div id='pano'></div>`);
+                    infoWindow.setMap(map)
+                    let panoramaOptions = {
+                        position: nearStreetViewLocation,
+                        pov: {
+                            heading: heading,
+                            pitch: 30
+                        }
+                    };
+
+                    let panorama = new google.maps.StreetViewPanorama(
+                        document.getElementById('pano'), panoramaOptions
+                    );
+
+                } else {
+                    infoWindow.setContent(`<div>${marker.title}</div> <div>NO STREET VIEW FOUND!</div>`);
+                }
+            }
+
+            /* USE STREETVIEW SERVICE TO GET THE CLOSEST STREETVIEW IMAGE 
+            WITHIN 50 METERS OF THE MARKER'S POSITION */
+            streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
+
+            // OPEN THE INFOWINDOW ON THE CORRECT MARKER
+            infoWindow.open(map, marker);
         }
     }
 }
