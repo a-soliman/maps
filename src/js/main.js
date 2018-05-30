@@ -16,7 +16,8 @@ function initMap() {
         {title: 'Chinatown Homey Space', location: {lat: 40.7180628, lng: -73.9961237}}
       ];
 
-      var largeInfowindow = new google.maps.InfoWindow();
+      var largeInfowindow   = new google.maps.InfoWindow();
+      var bounds            = new google.maps.LatLngBounds();
 
       // create one marker per each location
 
@@ -25,7 +26,6 @@ function initMap() {
         let position = locations[i].location;
         let title = locations[i].title;
         let marker = new google.maps.Marker({
-            map: map,
             position: position,
             title: title,
             animation: google.maps.Animation.DROP,
@@ -38,6 +38,9 @@ function initMap() {
         });
       }
 
+      document.getElementById('show-listing').addEventListener('click', showListings);
+      document.getElementById('hide-listing').addEventListener('click', hideListings);
+
       function populateInfoWindow(marker, infowindow) {
           if(infowindow.marker != marker) {
               infowindow.marker = marker;
@@ -49,7 +52,21 @@ function initMap() {
           }
       }
 
-        
+    function showListings() {
+        var bounds = new google.maps.LatLngBounds();
+
+        for (var i = 0; i <markers.length; i++) {
+            markers[i].setMap(map);
+            bounds.extend(markers[i].position)
+        }
+        map.fitBounds(bounds)
+    }
+    
+    function hideListings() {
+        for (var i = 0; i <markers.length; i++) {
+            markers[i].setMap(null);
+        }
+    }
 
         
 }

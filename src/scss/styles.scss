@@ -7,8 +7,16 @@
 	height: 100%;
   }
   /* Optional: Makes the sample page fill the window. */
-  html, body {
+html, body {
 	height: 100%;
 	margin: 0;
 	padding: 0;
-  }
+}
+
+.options-box {
+	border-radius: 3px;
+	height: 100%;
+	line-height: 35px;
+	padding: 10px 10px 30px 10px;
+	text-align: left;
+}
