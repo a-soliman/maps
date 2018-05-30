@@ -7,13 +7,37 @@ const locations = [
     {title: 'TriBeCa Artsy Bachelor Pad', position: {lat: 40.7195264, lng: -74.0089934}},
     {title: 'Chinatown Homey Space', position: {lat: 40.7180628, lng: -73.9961237}}
 ];
+const styles = [
+    {
+        featureType: 'water',
+        stylers: [
+            { color: '#19a0d8' }
+        ]
+    },
+    {
+        featureType: 'administrative',
+        elementType: 'labels.text.stroke',
+        stylers: [
+            { color: '#ffffff' },
+            { weight: 6 }
+        ]
+    },
+    {
+        featureType: 'transit.station',
+        elementType: 'labels.icon',
+        stylers: [
+            { visibility: 'off'}
+        ]
+    }
+]
 
 function initMap() {
     
     // MAP OPTIONS
     const options = {
         zoom: 12,
-        center: {lat: 40.7713124, lng: -73.9632393}
+        center: {lat: 40.7713124, lng: -73.9632393},
+        styles: styles
     }
 
     // MAP'S CONTAINER
@@ -61,14 +85,13 @@ function initMap() {
         // CHECK IF THE INFOWINDOW IS NOT ALREADY OPENED ON THIS MARKER
         if ( infoWindow.marker != marker ) {
             infoWindow.marker = marker;
-            infoWindow.setContent(`<div>${marker.title}</div>`);
+            infoWindow.setContent(`<div><h3>${marker.title}</h3> ${marker.position}</div>`);
             infoWindow.open(map, marker);
 
             // MAKE SURE THE MARKER PROPERTY IS CLEARED IF THE INFOWINDOW IS CLOSED
             infoWindow.addListener('closeclick', function() {
-                infoWindow.setMarker(null);
+                infoWindow.marker = null;
             })
         }
     }
-
 }
