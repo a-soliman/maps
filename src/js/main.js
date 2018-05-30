@@ -1,72 +1,74 @@
-var map;
-var markers = [];
+const markers = [];
+const locations = [
+    {title: 'Park Ave Penthouse', position: {lat: 40.7713024, lng: -73.9632393}},
+    {title: 'Chelsea Loft', position: {lat: 40.7444883, lng: -73.9949465}},
+    {title: 'Union Square Open Floor Plan', position: {lat: 40.7347062, lng: -73.9895759}},
+    {title: 'East Village Hip Studio', position: {lat: 40.7281777, lng: -73.984377}},
+    {title: 'TriBeCa Artsy Bachelor Pad', position: {lat: 40.7195264, lng: -74.0089934}},
+    {title: 'Chinatown Homey Space', position: {lat: 40.7180628, lng: -73.9961237}}
+];
 
 function initMap() {
-    map = new google.maps.Map(document.getElementById('map'), {
-    center: {lat: 40.7413549, lng: -73.9980244},
-    zoom: 13
-    });
+    
+    // MAP OPTIONS
+    const options = {
+        zoom: 12,
+        center: {lat: 40.7713124, lng: -73.9632393}
+    }
 
-    var locations = [
-        {title: 'Park Ave Penthouse', location: {lat: 40.7713024, lng: -73.9632393}},
-        {title: 'Chelsea Loft', location: {lat: 40.7444883, lng: -73.9949465}},
-        {title: 'Union Square Open Floor Plan', location: {lat: 40.7347062, lng: -73.9895759}},
-        {title: 'East Village Hip Studio', location: {lat: 40.7281777, lng: -73.984377}},
-        {title: 'TriBeCa Artsy Bachelor Pad', location: {lat: 40.7195264, lng: -74.0089934}},
-        {title: 'Chinatown Homey Space', location: {lat: 40.7180628, lng: -73.9961237}}
-      ];
+    // MAP'S CONTAINER
+    const mapContainer = document.getElementById('map');
+    const map = new google.maps.Map(mapContainer, options)
 
-      var largeInfowindow   = new google.maps.InfoWindow();
-      var bounds            = new google.maps.LatLngBounds();
-
-      // create one marker per each location
-
-      for ( let i = 0; i < locations.length; i++) {
-
-        let position = locations[i].location;
-        let title = locations[i].title;
+    /* ========== CREATE A MARKER FUNCTION ========== */
+    function createMarker(props) {
         let marker = new google.maps.Marker({
-            position: position,
-            title: title,
-            animation: google.maps.Animation.DROP,
-            id: i
+            position: props.position,
+            map: map,
+            animation: google.maps.Animation.DROP
         });
 
-        markers.push(marker);
-        marker.addListener('click', function() {
-            populateInfoWindow(this, largeInfowindow);
-        });
-      }
-
-      document.getElementById('show-listing').addEventListener('click', showListings);
-      document.getElementById('hide-listing').addEventListener('click', hideListings);
-
-      function populateInfoWindow(marker, infowindow) {
-          if(infowindow.marker != marker) {
-              infowindow.marker = marker;
-              infowindow.setContent('<div>' + marker.title + '</div>');
-              infowindow.open(map, marker);
-              infowindow.addListener('closeclick', function() {
-                  infowindow.setMarker(null);
-              })
-          }
-      }
-
-    function showListings() {
-        var bounds = new google.maps.LatLngBounds();
-
-        for (var i = 0; i <markers.length; i++) {
-            markers[i].setMap(map);
-            bounds.extend(markers[i].position)
+        //check if title was passed
+        if ( props.title ) {
+            marker.setTitle(props.title);
         }
-        map.fitBounds(bounds)
+
+        // check if iconImage was passed
+        if ( props.iconImage ) {
+            marker.setIcon(props.iconImage);
+        }
+        return marker;
     }
     
-    function hideListings() {
-        for (var i = 0; i <markers.length; i++) {
-            markers[i].setMap(null);
+    /* ========== MAKE A MARKER OUT OF EACH LOCATION ========== */
+    let largeInfoWindow = new google.maps.InfoWindow();
+
+    for ( let i = 0; i < locations.length; i++ ) {
+        let location = locations[i];
+        let marker = createMarker(location);
+
+        // push the marker to the markers array
+        markers.push(marker);
+
+        // ADD event on click
+        marker.addListener('click', function() {
+            populateInfoWindow(this, largeInfoWindow);
+        });
+    }
+
+    /* ========== MAKE A MARKER OUT OF EACH LOCATION ========== */
+    function populateInfoWindow(marker, infoWindow) {
+        // CHECK IF THE INFOWINDOW IS NOT ALREADY OPENED ON THIS MARKER
+        if ( infoWindow.marker != marker ) {
+            infoWindow.marker = marker;
+            infoWindow.setContent(`<div>${marker.title}</div>`);
+            infoWindow.open(map, marker);
+
+            // MAKE SURE THE MARKER PROPERTY IS CLEARED IF THE INFOWINDOW IS CLOSED
+            infoWindow.addListener('closeclick', function() {
+                infoWindow.setMarker(null);
+            })
         }
     }
 
-        
 }
