@@ -11,4 +11,12 @@ var map;
             map:map,
             title: 'First Marker!'
         });
+
+        var infoWindow = new google.maps.InfoWindow({
+            content: 'Do you ever feel like an InfoWindow, floating through the wind,' + ' ready to start again?'
+        });
+
+        marker.addListener('click', () => {
+            infoWindow.open(map, marker);
+        })
     }
